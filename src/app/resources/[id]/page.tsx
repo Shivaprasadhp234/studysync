@@ -22,7 +22,7 @@ async function getResource(id: string) {
         `)
         .eq('id', id)
         .single();
-    
+
     if (error || !data) return null;
     return data as Resource;
 }
@@ -34,7 +34,7 @@ export default async function ResourceDetailPage({
 }) {
     const { id } = await params;
     const resource = await getResource(id);
-    
+
     if (!resource) {
         notFound();
     }
@@ -61,7 +61,7 @@ export default async function ResourceDetailPage({
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                        {resource.avg_rating && (
+                        {avgRating > 0 && (
                             <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full font-bold">
                                 <Star className="w-4 h-4 fill-current" />
                                 {avgRating} ({reviews.length} reviews)
@@ -80,7 +80,7 @@ export default async function ResourceDetailPage({
                             <div className="flex items-center text-xs text-muted-foreground">
                                 <GraduationCap className="w-3 h-3 mr-1" /> Semester
                             </div>
-                            <div className="font-semibold">{resource.semester}th Semester</div>
+                            <div className="font-semibold">{resource.semester}{resource.semester.length === 1 ? "th" : ""} Semester</div>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center text-xs text-muted-foreground">
@@ -92,7 +92,7 @@ export default async function ResourceDetailPage({
                             <div className="flex items-center text-xs text-muted-foreground">
                                 <User className="w-3 h-3 mr-1" /> Uploader
                             </div>
-                            <div className="font-semibold">{resource.uploader?.full_name}</div>
+                            <div className="font-semibold">{resource.uploader?.full_name || "Anonymous"}</div>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center text-xs text-muted-foreground">
@@ -133,7 +133,7 @@ export default async function ResourceDetailPage({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div className="md:col-span-2 space-y-8">
                     <h2 className="text-2xl font-bold">Peer Reviews ({reviews.length})</h2>
-                    
+
                     {reviews.length === 0 ? (
                         <div className="py-10 text-center border-2 border-dashed rounded-2xl text-muted-foreground">
                             No reviews yet. Be the first to rate this resource!

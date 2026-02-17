@@ -1,24 +1,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Eye, Lock, Star } from "lucide-react";
+import { Eye, Lock, Star, Download } from "lucide-react";
 import Link from "next/link";
-
-interface Resource {
-    id: string;
-    title: string;
-    resource_type: string;
-    subject: string;
-    semester: string;
-    branch: string;
-    file_url: string;
-    privacy: "public" | "private";
-    avg_rating?: number;
-    uploader: {
-        full_name: string;
-        college_name?: string;
-    } | null;
-}
+import { Resource } from "@/types";
 
 interface ResourceCardProps {
     resource: Resource;

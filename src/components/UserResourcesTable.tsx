@@ -20,15 +20,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-
-interface Resource {
-    id: string;
-    title: string;
-    created_at: string;
-    privacy: string;
-    file_url: string;
-    avg_rating?: number;
-}
+import { Resource } from '@/types';
 
 export function UserResourcesTable({ resources }: { resources: Resource[] }) {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);

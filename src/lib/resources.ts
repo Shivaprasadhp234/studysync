@@ -1,31 +1,9 @@
 import { supabaseAdmin } from './supabase-admin';
 import { auth } from '@clerk/nextjs/server';
 import { checkProfile } from './user';
+import { Resource, GetResourcesParams } from '@/types';
 
-export type Resource = {
-    id: string;
-    title: string;
-    resource_type: string;
-    subject: string;
-    semester: string;
-    branch: string;
-    file_url: string;
-    privacy: "public" | "private";
-    created_at: string;
-    description?: string;
-    uploader: {
-        full_name: string;
-        college_name?: string;
-    } | null;
-};
-
-export interface GetResourcesParams {
-    search?: string;
-    semester?: string;
-    branch?: string;
-    resource_type?: string;
-    sortBy?: string; // "newest" | "oldest"
-}
+export type { Resource, GetResourcesParams };
 
 // Helper to apply filters
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

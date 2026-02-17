@@ -18,11 +18,8 @@ async function getUserStats(userId: string) {
     const { data: resources } = await supabaseAdmin
         .from('resources')
         .select(`
-            id, 
-            title, 
-            created_at, 
-            privacy, 
-            file_url,
+            *,
+            uploader:profiles!uploader_id(full_name, college_name),
             reviews!resource_id(rating)
         `)
         .eq('uploader_id', userId);
