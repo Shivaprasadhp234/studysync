@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, FileText, Star, TrendingUp, Award } from "lucide-react";
 import Link from 'next/link';
+import { SeedDemoButton } from "@/components/SeedDemoButton";
 
 async function getUserStats(userId: string) {
     const { data: profile } = await supabaseAdmin
@@ -98,11 +99,14 @@ export default async function DashboardPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight">Your Dashboard</h1>
-                    <p className="text-muted-foreground">Manage your uploads and track your impact.</p>
+                    <p className="text-muted-foreground transition-colors">Manage your uploads and track your impact.</p>
                 </div>
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-bold shadow-lg ${level.color}`}>
-                    <LevelIcon className="w-5 h-5" />
-                    {level.label}
+                <div className="flex flex-wrap items-center gap-3">
+                    <SeedDemoButton />
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-bold shadow-lg ${level.color}`}>
+                        <LevelIcon className="w-5 h-5" />
+                        {level.label}
+                    </div>
                 </div>
             </div>
 

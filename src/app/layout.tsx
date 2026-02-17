@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StudySync",
-  description: "Academic Resource Sharing Platform",
+  title: "Campus Share | Academic Resource Hub",
+  description: "The ultimate platform for [Your College Name] students to share notes, papers, and assignments securely.",
 };
 
 import { Toaster } from "sonner";

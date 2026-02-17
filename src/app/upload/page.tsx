@@ -48,9 +48,14 @@ const formSchema = z.object({
     privacy: z.string().default("public"),
     description: z.string().optional(),
     file: z
-        .custom<any>() // Use any to avoid FileList vs File type clashes
+        .custom<any>()
         .refine((files) => files?.length === 1, "File is required.")
-        .refine((files) => files?.[0]?.size <= 50000000, `Max file size is 50MB.`),
+        .refine((files) => files?.[0]?.size <= 5000000, `Max file size is 5MB.`)
+        .refine(
+            (files) =>
+                ["application/pdf", "image/jpeg", "image/png", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(files?.[0]?.type),
+            "Only PDF, JPEG, PNG, and DOCX files are supported."
+        ),
 });
 
 export default function UploadPage() {

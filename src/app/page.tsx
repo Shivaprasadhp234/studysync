@@ -118,6 +118,19 @@ export default function LandingPage() {
           </Button>
         </div>
       </section>
+      {/* Tech Stack Section */}
+      <section className="py-20 bg-muted/20 border-t">
+        <div className="container mx-auto px-4">
+          <h3 className="text-center text-sm font-bold uppercase tracking-widest text-muted-foreground mb-10">Powering the Platform</h3>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+            <div className="font-bold text-xl">Next.js 15</div>
+            <div className="font-bold text-xl">React 19</div>
+            <div className="font-bold text-xl">Tailwind 4</div>
+            <div className="font-bold text-xl">Supabase</div>
+            <div className="font-bold text-xl">Clerk</div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
