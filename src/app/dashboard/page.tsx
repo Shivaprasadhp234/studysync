@@ -4,14 +4,15 @@ import { getResources } from "@/lib/resources";
 import { UserResourcesTable } from "@/components/UserResourcesTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, FileText, Star, TrendingUp, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Trophy, FileText, Star, TrendingUp, Award, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import Link from 'next/link';
 import { SeedDemoButton } from "@/components/SeedDemoButton";
 
 async function getUserStats(userId: string) {
     const { data: profile } = await supabaseAdmin
         .from('profiles')
-        .select('points')
+        .select('points, is_admin')
         .eq('id', userId)
         .single();
 
@@ -37,12 +38,26 @@ async function getUserStats(userId: string) {
     const totalRatingSum = processedResources.reduce((acc, curr) => acc + (curr.avg_rating || 0), 0);
     const resourcesWithRatings = processedResources.filter(r => r.avg_rating && r.avg_rating > 0).length;
     const overallAvg = resourcesWithRatings > 0 ? Math.round((totalRatingSum / resourcesWithRatings) * 10) / 10 : 0;
-
     return {
         points: profile?.points || 0,
         uploads: processedResources,
-        avgRating: overallAvg
+        avgRating: overallAvg,
+        isAdmin: profile?.is_admin || false
     };
+}
+
+async function getReportedContent() {
+    const { data: reports } = await supabaseAdmin
+        .from('reports')
+        .select(`
+            *,
+            resource:resources(title),
+            review:reviews(comment)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+    return reports || [];
 }
 
 function getLevelInfo(points: number) {
@@ -72,7 +87,8 @@ export default async function DashboardPage() {
         redirect('/complete-profile');
     }
 
-    const { points, uploads, avgRating } = await getUserStats(userId);
+    const { points, uploads, avgRating, isAdmin } = await getUserStats(userId);
+    const reports = isAdmin ? await getReportedContent() : [];
     const level = getLevelInfo(points);
     const LevelIcon = level.icon;
 
@@ -144,6 +160,68 @@ export default async function DashboardPage() {
                 </div>
                 <UserResourcesTable resources={uploads} />
             </div>
+
+            {/* Admin Section: Reported Content */}
+            {isAdmin && (
+                <div className="space-y-6 pt-10 border-t">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-6 h-6 text-destructive" />
+                        <h2 className="text-2xl font-bold">Reported Content (Admin)</h2>
+                    </div>
+
+                    {reports.length === 0 ? (
+                        <div className="p-10 text-center border-2 border-dashed rounded-2xl bg-muted/20">
+                            <CheckCircle2 className="w-12 h-12 text-primary/20 mx-auto mb-4" />
+                            <p className="text-muted-foreground font-medium">No pending reports. All clear!</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-4">
+                            {reports.map((report) => (
+                                <Card key={report.id} className="border-l-4 border-l-destructive">
+                                    <CardContent className="p-6">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="destructive">{report.reason}</Badge>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {new Date(report.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <p className="font-semibold">
+                                                    {report.resource_id ? (
+                                                        <>Resource: <span className="text-primary underline italic">
+                                                            {/* @ts-ignore */}
+                                                            {report.resource?.title || "Unknown Resource"}
+                                                        </span></>
+                                                    ) : (
+                                                        <>Review: <span className="text-primary italic">
+                                                            {/* @ts-ignore */}
+                                                            "{report.review?.comment?.substring(0, 50)}..."
+                                                        </span></>
+                                                    )}
+                                                </p>
+                                                {report.description && (
+                                                    <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg border italic">
+                                                        "{report.description}"
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Button size="sm" variant="outline" className="text-xs">
+                                                    <CheckCircle2 className="w-3 h-3 mr-1" /> Resolve
+                                                </Button>
+                                                <Button size="sm" variant="ghost" className="text-xs text-destructive hover:bg-destructive/10">
+                                                    <XCircle className="w-3 h-3 mr-1" /> Take Action
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

@@ -36,6 +36,9 @@ export default async function LeaderboardPage() {
                     <div className="max-w-4xl mx-auto">
                         <Card className="bg-primary/5 border-primary/20 backdrop-blur-md shadow-2xl shadow-primary/10 overflow-hidden relative">
                             <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                            {/* Neural Scan Line for Card */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-primary/20 animate-neural-scan opacity-30" />
+
                             <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-primary/20 p-3 rounded-2xl">
@@ -59,9 +62,16 @@ export default async function LeaderboardPage() {
                                     </div>
                                 </div>
                                 <div className="hidden md:block">
-                                    <div className="flex items-center gap-2 text-xs font-bold bg-muted px-4 py-2 rounded-full border border-border/50">
-                                        <Award className="w-4 h-4 text-primary" />
-                                        Keep uploading to climb!
+                                    <div className="flex flex-col items-end gap-1">
+                                        <div className="flex items-center gap-2 text-xs font-bold bg-muted px-4 py-2 rounded-full border border-border/50">
+                                            <Award className="w-4 h-4 text-primary" />
+                                            {myRankData.rank <= 3 ? "You're on the podium!" : "Keep uploading to climb!"}
+                                        </div>
+                                        {myRankData.rank > 1 && leaderboard[0] && (
+                                            <p className="text-[10px] font-medium opacity-50 mr-2">
+                                                {leaderboard[0].points - myRankData.points} pts away from #1
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>

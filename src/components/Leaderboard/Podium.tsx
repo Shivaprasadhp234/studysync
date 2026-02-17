@@ -27,7 +27,7 @@ export function Podium({ topThree }: { topThree: Profile[] }) {
             color: "text-slate-400",
             bg: "bg-slate-400/10",
             border: "border-slate-400/20",
-            glow: "shadow-[0_0_15px_rgba(148,163,184,0.3)]",
+            glow: "shadow-[0_0_20px_rgba(148,163,184,0.4)]",
         },
         1: { // Second place in array (actually Rank 1)
             rank: 1,
@@ -35,7 +35,7 @@ export function Podium({ topThree }: { topThree: Profile[] }) {
             color: "text-yellow-500",
             bg: "bg-yellow-500/10",
             border: "border-yellow-500/20",
-            glow: "shadow-[0_0_25px_rgba(234,179,8,0.4)]",
+            glow: "shadow-[0_0_30px_rgba(234,179,8,0.5)]",
         },
         2: { // Third place in array (actually Rank 3)
             rank: 3,
@@ -43,7 +43,7 @@ export function Podium({ topThree }: { topThree: Profile[] }) {
             color: "text-amber-700",
             bg: "bg-amber-700/10",
             border: "border-amber-700/20",
-            glow: "shadow-[0_0_15px_rgba(180,83,9,0.3)]",
+            glow: "shadow-[0_0_20px_rgba(180,83,9,0.4)]",
         }
     };
 
@@ -59,9 +59,9 @@ export function Podium({ topThree }: { topThree: Profile[] }) {
                         transition={{ delay: idx * 0.1, duration: 0.8 }}
                         className={`relative w-full sm:w-64 ${config.h} flex flex-col justify-end`}
                     >
-                        <Card className={`h-full flex flex-col items-center justify-center space-y-4 border-2 ${config.border} ${config.bg} ${config.glow} backdrop-blur-sm relative overflow-hidden group`}>
+                        <Card className={`h-full flex flex-col items-center justify-center space-y-4 border-2 ${config.border} ${config.bg} ${config.glow} backdrop-blur-sm relative overflow-hidden group hover:scale-105 transition-transform duration-300`}>
                             {/* Neural Scanning Line Effect */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-primary/20 animate-neural-scan opacity-0 group-hover:opacity-100" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-primary/20 animate-neural-scan opacity-30 group-hover:opacity-100" />
 
                             <div className={`p-4 rounded-full ${config.bg} border ${config.border}`}>
                                 <Trophy className={`w-8 h-8 ${config.color}`} />
@@ -76,11 +76,9 @@ export function Podium({ topThree }: { topThree: Profile[] }) {
                                 <Badge className={`${config.bg} ${config.color} border-none`}>
                                     Rank #{config.rank}
                                 </Badge>
-                                {config.rank === 1 && (
-                                    <Badge variant="outline" className="text-[10px] animate-pulse">
-                                        Top Contributor
-                                    </Badge>
-                                )}
+                                <Badge variant="outline" className="text-[10px] opacity-70 group-hover:opacity-100 animate-pulse">
+                                    Top Contributor
+                                </Badge>
                             </div>
                         </Card>
                     </motion.div>

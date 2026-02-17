@@ -10,6 +10,8 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { ReportDialog } from "@/components/Modals/ReportDialog";
+import { Flag } from "lucide-react";
 
 async function getResource(id: string) {
     // We can use a direct query or update lib/resources.ts
@@ -18,7 +20,8 @@ async function getResource(id: string) {
         .from('resources')
         .select(`
             *,
-            uploader:profiles!uploader_id(full_name, college_name)
+            uploader:profiles!uploader_id(full_name, college_name),
+            reports:reports(count)
         `)
         .eq('id', id)
         .single();
@@ -57,7 +60,16 @@ export default async function ResourceDetailPage({
                             <span>/</span>
                             <span className="text-foreground">{resource.resource_type}</span>
                         </div>
-                        <h1 className="text-4xl font-extrabold tracking-tight">{resource.title}</h1>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-4xl font-extrabold tracking-tight">{resource.title}</h1>
+                            {/* @ts-ignore - Supabase count check */}
+                            {resource.reports?.[0]?.count >= 5 && (
+                                <Badge variant="destructive" className="animate-pulse gap-1">
+                                    <Flag className="w-3 h-3" />
+                                    Flagged
+                                </Badge>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-3">
@@ -120,6 +132,15 @@ export default async function ResourceDetailPage({
                                 Download Resource
                             </Link>
                         </Button>
+                        <ReportDialog
+                            resourceId={resource.id}
+                            trigger={
+                                <Button variant="outline" className="w-full text-muted-foreground hover:text-destructive">
+                                    <Flag className="w-4 h-4 mr-2" />
+                                    Report Resource
+                                </Button>
+                            }
+                        />
                         <p className="text-xs text-center text-muted-foreground italic">
                             Safe and secure download via Supabase Storage.
                         </p>
@@ -154,10 +175,13 @@ export default async function ResourceDetailPage({
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-1 text-amber-500">
-                                            {Array.from({ length: review.rating }).map((_, i) => (
-                                                <Star key={i} className="w-4 h-4 fill-current" />
-                                            ))}
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1 text-amber-500">
+                                                {Array.from({ length: review.rating }).map((_, i) => (
+                                                    <Star key={i} className="w-4 h-4 fill-current" />
+                                                ))}
+                                            </div>
+                                            <ReportDialog reviewId={review.id} />
                                         </div>
                                     </div>
                                     <p className="text-muted-foreground pl-13">

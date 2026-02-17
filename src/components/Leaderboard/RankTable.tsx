@@ -22,8 +22,11 @@ interface Profile {
 
 export function RankTable({ users, currentUserId }: { users: Profile[], currentUserId?: string | null }) {
     return (
-        <div className="relative border rounded-2xl overflow-hidden bg-background/50 backdrop-blur-md">
+        <div className="relative border rounded-2xl overflow-hidden bg-background/50 backdrop-blur-md group">
             <div className="absolute top-0 left-0 w-full h-[1px] bg-linear-to-r from-transparent via-primary/50 to-transparent" />
+
+            {/* Neural Scanning Effect */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-primary/10 animate-neural-scan opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <Table>
                 <TableHeader>
