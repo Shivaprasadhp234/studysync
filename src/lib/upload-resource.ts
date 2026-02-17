@@ -4,6 +4,7 @@ import { supabaseAdmin } from './supabase-admin';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { randomUUID } from 'crypto';
+import { revalidatePath } from 'next/cache';
 
 export async function uploadResource(formData: FormData) {
     try {
@@ -87,6 +88,7 @@ export async function uploadResource(formData: FormData) {
             amount: 10
         });
 
+        revalidatePath('/leaderboard');
         return { success: true };
     } catch (err: any) {
         console.error("Critical Upload Error:", err);

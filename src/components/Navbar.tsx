@@ -4,7 +4,7 @@ import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
-import { BookOpen, Upload, LayoutDashboard, Search } from "lucide-react";
+import { BookOpen, Upload, LayoutDashboard, Search, Trophy } from "lucide-react";
 
 export default function Navbar() {
     const { isSignedIn } = useUser();
@@ -24,6 +24,14 @@ export default function Navbar() {
                     >
                         <Search className="w-4 h-4" />
                         Resources
+                    </Link>
+
+                    <Link
+                        href="/leaderboard"
+                        className="text-sm font-semibold flex items-center gap-1 transition-colors hover:text-primary hidden sm:flex"
+                    >
+                        <Trophy className="w-4 h-4 text-yellow-500" />
+                        Leaderboard
                     </Link>
 
                     {isSignedIn ? (

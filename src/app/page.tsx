@@ -1,48 +1,92 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Upload, Shield, Users, Trophy, Milestone, Globe, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { NeuralBg } from "@/components/Visuals/NeuralBg";
+import { TiltCard } from "@/components/Visuals/TiltCard";
 
 export default function LandingPage() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-background -z-10" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none opacity-20 dark:opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500 rounded-full blur-3xl" />
-        </div>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
 
-        <div className="container mx-auto px-4 text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-4 animate-bounce">
-            🚀 Yugastr 2026 Special
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
-            Unlock Your <span className="text-primary">Campus Potential</span> with StudySync
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8 },
+    },
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
+      <NeuralBg />
+
+      {/* Hero Section */}
+      <section className="relative py-24 md:py-32">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-background -z-20" />
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="container mx-auto px-4 text-center space-y-8"
+        >
+          <motion.div variants={itemVariants}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-4 shadow-sm border border-primary/20">
+              🚀 Yugastr 2026 Special
+            </div>
+          </motion.div>
+
+          <motion.h1
+            variants={itemVariants}
+            className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight"
+          >
+            Unlock Your <span className="text-primary lg:inline-block">Campus Potential</span> with StudySync
+          </motion.h1>
+
+          <motion.p
+            variants={itemVariants}
+            className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+          >
             The ultimate collaborative hub for students to share notes, previous papers, and assignments securely. Build your legacy while helping others.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Button asChild size="lg" className="h-14 px-8 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 group">
-              <Link href="/resources" className="flex items-center gap-2">
-                Browse Resources
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg font-bold rounded-2xl border-2 transition-all hover:bg-accent/50 group">
-              <Link href="/upload" className="flex items-center gap-2">
-                <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-                Upload Now
-              </Link>
-            </Button>
-          </div>
-        </div>
+          </motion.p>
+
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button asChild size="lg" className="h-14 px-8 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 group">
+                <Link href="/resources" className="flex items-center gap-2">
+                  Browse Resources
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg font-bold rounded-2xl border-2 group bg-background/50 backdrop-blur-sm">
+                <Link href="/upload" className="flex items-center gap-2">
+                  <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                  Upload Now
+                </Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="py-12 bg-muted/30 border-y border-border/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -50,24 +94,26 @@ export default function LandingPage() {
               { label: "Previous Papers", value: "100+", icon: Milestone, color: "text-purple-500" },
               { label: "Branches Covered", value: "10+", icon: Globe, color: "text-emerald-500" },
             ].map((stat, i) => (
-              <Card key={i} className="bg-background/50 backdrop-blur-sm border-none shadow-xs group cursor-default transition-all hover:shadow-lg">
-                <CardContent className="flex items-center gap-6 p-8">
-                  <div className={`p-4 rounded-2xl bg-muted group-hover:bg-background transition-colors ${stat.color}`}>
-                    <stat.icon className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <div className="text-3xl font-black">{stat.value}</div>
-                    <div className="text-muted-foreground font-medium uppercase tracking-wider text-xs">{stat.label}</div>
-                  </div>
-                </CardContent>
-              </Card>
+              <TiltCard key={i}>
+                <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-xs group cursor-default transition-all hover:bg-background/80">
+                  <CardContent className="flex items-center gap-6 p-8">
+                    <div className={`p-4 rounded-2xl bg-muted group-hover:bg-background transition-colors ${stat.color}`}>
+                      <stat.icon className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <div className="text-3xl font-black">{stat.value}</div>
+                      <div className="text-muted-foreground font-medium uppercase tracking-wider text-xs">{stat.label}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TiltCard>
             ))}
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 md:py-32">
+      <section className="py-24 md:py-32 relative">
         <div className="container mx-auto px-4 space-y-16">
           <div className="text-center space-y-4">
             <h2 className="text-4xl font-bold tracking-tight">Built for Modern Education</h2>
@@ -92,7 +138,14 @@ export default function LandingPage() {
                 icon: Trophy,
               },
             ].map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center space-y-6 p-6 group">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-center text-center space-y-6 p-6 group"
+              >
                 <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center text-primary transition-all group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-primary/20">
                   <feature.icon className="w-8 h-8" />
                 </div>
@@ -100,24 +153,35 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold">{feature.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center space-y-8">
-          <h2 className="text-4xl font-black">Ready to Start Syncing?</h2>
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-primary -z-10" />
+        <div className="container mx-auto px-4 text-center space-y-8 text-primary-foreground">
+          <motion.h2
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="text-4xl font-black"
+          >
+            Ready to Start Syncing?
+          </motion.h2>
           <p className="text-lg opacity-90 max-w-xl mx-auto">
             Join hundreds of students in improving campus collaboration. Your notes could be the key to someone's success.
           </p>
-          <Button asChild size="lg" variant="secondary" className="h-14 px-10 text-lg font-bold rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl shadow-primary-foreground/10">
-            <Link href="/sign-up">Create Free Account</Link>
-          </Button>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <Button asChild size="lg" variant="secondary" className="h-14 px-10 text-lg font-bold rounded-2xl shadow-2xl shadow-primary-foreground/10">
+              <Link href="/sign-up">Create Free Account</Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
+
       {/* Tech Stack Section */}
       <section className="py-20 bg-muted/20 border-t">
         <div className="container mx-auto px-4">
@@ -128,9 +192,11 @@ export default function LandingPage() {
             <div className="font-bold text-xl">Tailwind 4</div>
             <div className="font-bold text-xl">Supabase</div>
             <div className="font-bold text-xl">Clerk</div>
+            <div className="font-bold text-xl">Framer Motion</div>
           </div>
         </div>
       </section>
     </div>
   );
 }
+

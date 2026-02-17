@@ -37,7 +37,31 @@ export async function submitReview({
             return { success: false, error: `Failed to submit review: ${error.message}` };
         }
 
+        // --- Award Points ---
+        // 1. Award Reviewer 2 points
+        await supabaseAdmin.rpc('increment_points', {
+            user_id: userId,
+            amount: 2
+        });
+
+        // 2. If high rating, award uploader 5 points
+        if (rating >= 4) {
+            const { data: resource } = await supabaseAdmin
+                .from('resources')
+                .select('uploader_id')
+                .eq('id', resourceId)
+                .single();
+
+            if (resource?.uploader_id) {
+                await supabaseAdmin.rpc('increment_points', {
+                    user_id: resource.uploader_id,
+                    amount: 5
+                });
+            }
+        }
+
         revalidatePath(`/resources/${resourceId}`);
+        revalidatePath('/leaderboard');
         return { success: true };
     } catch (err: any) {
         console.error("Critical Review Error:", err);
