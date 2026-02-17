@@ -42,13 +42,17 @@ export function ReviewForm({ resourceId }: ReviewFormProps) {
 
         setIsSubmitting(true);
         try {
-            await submitReview({ resourceId, rating, comment });
-            toast.success("Review submitted!");
-            setRating(0);
-            setComment("");
-            router.refresh();
+            const result = await submitReview({ resourceId, rating, comment });
+            if (result.success) {
+                toast.success("Review submitted!");
+                setRating(0);
+                setComment("");
+                router.refresh();
+            } else {
+                toast.error(result.error || "Failed to submit review");
+            }
         } catch (error: any) {
-            toast.error(error.message || "Failed to submit review");
+            toast.error("An unexpected error occurred. Please try again.");
         } finally {
             setIsSubmitting(false);
         }

@@ -108,12 +108,16 @@ export default function UploadPage() {
         formData.append("file", file);
 
         try {
-            await uploadResource(formData);
-            toast.success("Resource uploaded successfully!");
-            router.push("/resources");
+            const result = await uploadResource(formData);
+            if (result.success) {
+                toast.success("Resource uploaded successfully!");
+                router.push("/resources");
+            } else {
+                toast.error(result.error || "Failed to upload resource. Please try again.");
+            }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to upload resource. Please try again.");
+            toast.error("An unexpected error occurred. Please try again.");
         } finally {
             setIsUploading(false);
         }

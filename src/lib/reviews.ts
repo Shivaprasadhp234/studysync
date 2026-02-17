@@ -13,31 +13,36 @@ export async function submitReview({
     rating: number,
     comment: string
 }) {
-    const { userId } = await auth();
+    try {
+        const { userId } = await auth();
 
-    if (!userId) {
-        throw new Error("Not authenticated");
+        if (!userId) {
+            return { success: false, error: "Not authenticated. Please sign in." };
+        }
+
+        const { error } = await supabaseAdmin
+            .from('reviews')
+            .upsert({
+                resource_id: resourceId,
+                user_id: userId,
+                rating,
+                comment,
+                created_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,resource_id'
+            });
+
+        if (error) {
+            console.error("Review Submission Error:", error);
+            return { success: false, error: `Failed to submit review: ${error.message}` };
+        }
+
+        revalidatePath(`/resources/${resourceId}`);
+        return { success: true };
+    } catch (err: any) {
+        console.error("Critical Review Error:", err);
+        return { success: false, error: "An unexpected error occurred. Please try again." };
     }
-
-    const { error } = await supabaseAdmin
-        .from('reviews')
-        .upsert({
-            resource_id: resourceId,
-            user_id: userId,
-            rating,
-            comment,
-            created_at: new Date().toISOString()
-        }, {
-            onConflict: 'user_id,resource_id'
-        });
-
-    if (error) {
-        console.error("Review Submission Error:", error);
-        throw new Error(`Failed to submit review: ${error.message}`);
-    }
-
-    revalidatePath(`/resources/${resourceId}`);
-    return { success: true };
 }
 
 export async function getReviews(resourceId: string) {
