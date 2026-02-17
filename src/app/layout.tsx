@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -30,13 +32,21 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col transition-colors duration-300`}
         >
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Toaster position="top-right" />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="top-right" richColors />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

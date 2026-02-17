@@ -87,8 +87,18 @@ export async function uploadResource(formData: FormData) {
             details: dbError.details,
             hint: dbError.hint
         });
-        // Cleanup file if DB insert fails? -> Good practice but skip for now
         throw new Error(`Failed to save resource metadata: ${dbError.message}`);
+    }
+
+    // 4. Award 10 Points to User Profile
+    const { error: pointsError } = await supabaseAdmin.rpc('increment_points', {
+        user_id: userId,
+        amount: 10
+    });
+
+    if (pointsError) {
+        console.error("Failed to award points:", pointsError);
+        // We don't throw here as the upload was already successful, just log it.
     }
 
     return { success: true };

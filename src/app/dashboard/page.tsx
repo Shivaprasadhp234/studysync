@@ -1,93 +1,139 @@
 import { auth } from "@clerk/nextjs/server";
-import { checkProfile } from "@/lib/user";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getResources } from "@/lib/resources";
-import { ResourceCard } from "@/components/ResourceCard";
-import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, FileText, Download, Eye } from "lucide-react";
-import Link from "next/link";
+import { UserResourcesTable } from "@/components/UserResourcesTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, FileText, Star, TrendingUp, Award } from "lucide-react";
+import Link from 'next/link';
+
+async function getUserStats(userId: string) {
+    const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('points')
+        .eq('id', userId)
+        .single();
+
+    const { data: resources } = await supabaseAdmin
+        .from('resources')
+        .select(`
+            id, 
+            title, 
+            created_at, 
+            privacy, 
+            file_url,
+            reviews!resource_id(rating)
+        `)
+        .eq('uploader_id', userId);
+
+    if (!resources) return { points: profile?.points || 0, uploads: [], avgRating: 0 };
+
+    const processedResources = resources.map(r => {
+        const ratings = r.reviews || [];
+        const avg_rating = ratings.length > 0
+            ? Math.round((ratings.reduce((acc: number, curr: any) => acc + curr.rating, 0) / ratings.length) * 10) / 10
+            : 0;
+        return { ...r, avg_rating };
+    });
+
+    const totalRatingSum = processedResources.reduce((acc, curr) => acc + (curr.avg_rating || 0), 0);
+    const resourcesWithRatings = processedResources.filter(r => r.avg_rating && r.avg_rating > 0).length;
+    const overallAvg = resourcesWithRatings > 0 ? Math.round((totalRatingSum / resourcesWithRatings) * 10) / 10 : 0;
+
+    return {
+        points: profile?.points || 0,
+        uploads: processedResources,
+        avgRating: overallAvg
+    };
+}
+
+function getLevelInfo(points: number) {
+    if (points >= 200) return { label: "Campus Legend", color: "bg-purple-500", icon: Trophy };
+    if (points >= 51) return { label: "Contributor", color: "bg-blue-500", icon: Award };
+    return { label: "Newbie", color: "bg-slate-500", icon: TrendingUp };
+}
 
 export default async function DashboardPage() {
     const { userId } = await auth();
 
     if (!userId) {
-        redirect("/sign-in");
+        return (
+            <div className="container mx-auto py-20 text-center">
+                <h2 className="text-2xl font-bold">Please sign in to view your dashboard</h2>
+                <Link href="/sign-in" className="text-primary hover:underline mt-4 inline-block">Sign In</Link>
+            </div>
+        );
     }
 
-    const profile = await checkProfile();
-    if (!profile) {
-        redirect("/complete-profile");
-    }
+    const { points, uploads, avgRating } = await getUserStats(userId);
+    const level = getLevelInfo(points);
+    const LevelIcon = level.icon;
 
-    // Reuse getResources? No, we need a special "My Resources" fetch or filter.
-    // For now, let's fetch all and filter client-side or add a specific backend function.
-    // Better to add a backend function for efficiency.
-
-    const allResources = await getResources();
-    const myResources = allResources.filter(r => r.uploader?.full_name === profile.full_name); // simplistic filter
+    const stats = [
+        {
+            title: "Total Uploads",
+            value: uploads.length,
+            icon: FileText,
+            description: "Resources shared with the community",
+            color: "text-blue-600"
+        },
+        {
+            title: "Recognition Points",
+            value: points,
+            icon: Award,
+            description: `Level: ${level.label}`,
+            color: "text-purple-600"
+        },
+        {
+            title: "Average Quality",
+            value: avgRating > 0 ? `${avgRating}/5` : "N/A",
+            icon: Star,
+            description: "Based on community reviews",
+            color: "text-amber-500"
+        }
+    ];
 
     return (
-        <div className="container mx-auto py-10 px-4">
-            <div className="flex justify-between items-center mb-8">
+        <div className="container mx-auto py-10 px-4 space-y-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold">Welcome, {profile.full_name}</h1>
-                    <p className="text-muted-foreground">{profile.college_name} | {profile.branch} | Semester {profile.semester}</p>
+                    <h1 className="text-3xl font-extrabold tracking-tight">Your Dashboard</h1>
+                    <p className="text-muted-foreground">Manage your uploads and track your impact.</p>
                 </div>
-                <Link href="/upload">
-                    <Button>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Upload Resource
-                    </Button>
-                </Link>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-bold shadow-lg ${level.color}`}>
+                    <LevelIcon className="w-5 h-5" />
+                    {level.label}
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Uploads</CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{myResources.length}</div>
-                    </CardContent>
-                </Card>
-                {/* Placeholders for future stats */}
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Views</CardTitle>
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Downloads</CardTitle>
-                        <Download className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                    </CardContent>
-                </Card>
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {stats.map((stat, i) => (
+                    <Card key={i} className="hover:shadow-md transition-shadow">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground italic">
+                                {stat.title}
+                            </CardTitle>
+                            <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold">{stat.value}</div>
+                            <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
 
-            <h2 className="text-2xl font-bold mb-4">My Uploaded Resources</h2>
-            {myResources.length === 0 ? (
-                <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                    <p className="text-muted-foreground mb-4">You haven't uploaded any resources yet.</p>
-                    <Link href="/upload">
-                        <Button variant="outline">Share your first resource</Button>
+            {/* Resources List */}
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">My Resources</h2>
+                    <Link href="/upload" className="text-primary text-sm font-medium hover:underline">
+                        + Upload New
                     </Link>
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {myResources.map((resource) => (
-                        <ResourceCard key={resource.id} resource={resource} />
-                    ))}
-                </div>
-            )}
+                <UserResourcesTable resources={uploads} />
+            </div>
         </div>
     );
 }
