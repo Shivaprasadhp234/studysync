@@ -8,6 +8,10 @@ import { toast } from "sonner";
 import { submitReview } from "@/lib/reviews";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { checkProfile } from "@/lib/user";
+import { useEffect } from "react";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
 
 interface ReviewFormProps {
     resourceId: string;
@@ -18,7 +22,16 @@ export function ReviewForm({ resourceId }: ReviewFormProps) {
     const [hover, setHover] = useState(0);
     const [comment, setComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasProfile, setHasProfile] = useState<boolean | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const verifyProfile = async () => {
+            const profile = await checkProfile();
+            setHasProfile(!!profile);
+        };
+        verifyProfile();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,6 +53,23 @@ export function ReviewForm({ resourceId }: ReviewFormProps) {
             setIsSubmitting(false);
         }
     };
+
+    if (hasProfile === false) {
+        return (
+            <Card className="p-6 border-dashed border-2 bg-muted/30">
+                <div className="text-center space-y-3">
+                    <p className="text-sm font-medium">Please complete your profile to leave a review.</p>
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href="/complete-profile">Complete Profile</Link>
+                    </Button>
+                </div>
+            </Card>
+        );
+    }
+
+    if (hasProfile === null) {
+        return <div className="p-6 border rounded-xl animate-pulse bg-muted h-32" />;
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 p-6 border rounded-xl bg-card">

@@ -51,6 +51,9 @@ function getLevelInfo(points: number) {
     return { label: "Newbie", color: "bg-slate-500", icon: TrendingUp };
 }
 
+import { checkProfile } from "@/lib/user";
+import { redirect } from "next/navigation";
+
 export default async function DashboardPage() {
     const { userId } = await auth();
 
@@ -61,6 +64,12 @@ export default async function DashboardPage() {
                 <Link href="/sign-in" className="text-primary hover:underline mt-4 inline-block">Sign In</Link>
             </div>
         );
+    }
+
+    // Check if user has completed their profile
+    const profile = await checkProfile();
+    if (!profile) {
+        redirect('/complete-profile');
     }
 
     const { points, uploads, avgRating } = await getUserStats(userId);

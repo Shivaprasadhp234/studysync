@@ -58,9 +58,23 @@ const formSchema = z.object({
         ),
 });
 
+import { checkProfile } from "@/lib/user";
+import { useEffect } from "react";
+
 export default function UploadPage() {
     const router = useRouter();
     const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        const verifyProfile = async () => {
+            const profile = await checkProfile();
+            if (!profile) {
+                toast.error("Please complete your profile before uploading.");
+                router.push("/complete-profile");
+            }
+        };
+        verifyProfile();
+    }, [router]);
 
     // 1. Define your form.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
